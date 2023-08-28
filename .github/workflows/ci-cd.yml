@@ -1,0 +1,35 @@
+name: WeatherApp CI/CD
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --no-progress --optimize-autoloader
+
+      - name: Run Tests
+        run: php artisan test
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t weatherapp-app .
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker push weatherapp-app
+
+      - name: Deploy to Server
+        run: |
+          ssh user@your-server-ip "cd /path/to/your/project && git pull origin main && docker-compose up -d"

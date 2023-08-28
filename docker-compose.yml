@@ -1,0 +1,30 @@
+version: '3'
+services:
+    app:
+        container_name: weatherapp
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        ports:
+            - 8000:8000
+            - 443:443 # for future ssl traffic
+        volumes:
+            - "./:/var/www/html"  # sync project dir with container web dir
+  
+    db:
+        image: mysql:5.6
+        environment:
+            - MYSQL_DATABASE=weather
+            - MYSQL_USER=weather_user
+            - MYSQL_PASSWORD=password
+            - MYSQL_ALLOW_EMPTY_PASSWORD=1
+        ports:
+            - 3307:3307
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - 8001:8000
+        environment:
+            - PMA_HOST=db
+            - PMA_PORT=3307
